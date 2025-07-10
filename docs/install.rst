@@ -21,6 +21,8 @@ Requirements
 
   * MI300X
 
+  * MI355X
+
 * ROCm-aware Open MPI and UCX. For more information, see :ref:`install-dependencies`.
 
 Installing from a package manager
