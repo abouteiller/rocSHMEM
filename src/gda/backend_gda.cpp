@@ -1050,6 +1050,11 @@ void GDABackend::initialize_gpu_qp(QueuePair* gpu_qp, int conn_num) {
 
   gpu_qp->cq_buf = reinterpret_cast<ionic_v1_cqe*>(dvcq.q.ptr);
 
+  strncpy(gpu_qp->dev_name,
+          qps[conn_num]->context->device->name,
+          sizeof(gpu_qp->dev_name));
+  gpu_qp->dev_name[sizeof(gpu_qp->dev_name) - 1] = 0;
+
   ionic_dv_qp dvqp;
   ionic_dv_get_qp(&dvqp, qps[conn_num]);
 

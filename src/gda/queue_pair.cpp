@@ -214,10 +214,10 @@ __device__ void QueuePair::poll_wave_cqes(uint64_t activemask) {
     uint32_t type = (qtf >> IONIC_V1_CQE_TYPE_SHIFT) & IONIC_V1_CQE_TYPE_MASK;
     uint32_t flag = qtf & 0xf;
     uint32_t status = swap_endian_val<uint32_t>(cqe->status_length);
-    uint64_t npg = swap_endian_val<uint64_t>(cqe->send.npg_wqe_id);
+    uint64_t npg = cqe->send.npg_wqe_idx_timestamp & IONIC_V1_CQE_WQE_IDX_MASK;
 
-    printf("QUIET ERROR: qid %u type %u flag %#x status %u msn %u npg %lu\n",
-        qid, type, flag, status, msn, npg);
+    printf("QUIET ERROR: %s qid %u type %u flag %#x status %u msn %u npg %lu\n",
+           dev_name, qid, type, flag, status, msn, npg);
 #endif
     /* No other way to signal an error, so just crash. */
     abort();
@@ -459,10 +459,12 @@ __device__ void QueuePair::ionic_post_wqe_rma(int pe, int32_t size, uintptr_t *l
     size = 1;
   }
 
-  wqe->base.wqe_id = my_sq_pos;
+  wqe->base.wqe_idx = my_sq_pos;
   wqe->base.op = opcode;
   wqe->base.num_sge_key = size ? 1 : 0;
-  wqe->base.flags = swap_endian_val<uint16_t>(0);
+  wqe->base.flags = (my_sq_pos & (sq_mask + 1))?
+    swap_endian_val<uint16_t>(0):
+    swap_endian_val<uint16_t>(IONIC_V1_FLAG_COLOR);
   wqe->base.imm_data_key = swap_endian_val<uint32_t>(0);
 
   wqe->common.rdma.remote_va_high = swap_endian_val<uint32_t>(reinterpret_cast<uint64_t>(raddr) >> 32);
@@ -578,10 +580,13 @@ __device__ uint64_t QueuePair::ionic_post_wqe_amo(int pe, int32_t size, uintptr_
     wave_fetch_atomic = (uint64_t*)__shfl((uint64_t)wave_fetch_atomic, leader_phys_lane_id);
   }
 
-  wqe->base.wqe_id = my_sq_pos;
+  wqe->base.wqe_idx = my_sq_pos;
   wqe->base.op = opcode;
   wqe->base.num_sge_key = 1;
-  wqe->base.flags = swap_endian_val<uint16_t>(0);
+
+  wqe->base.flags = (my_sq_pos & (sq_mask + 1))?
+    swap_endian_val<uint16_t>(0):
+    swap_endian_val<uint16_t>(IONIC_V1_FLAG_COLOR);
   wqe->base.imm_data_key = swap_endian_val<uint32_t>(0);
 
   wqe->atomic_v2.remote_va_high = swap_endian_val<uint32_t>(reinterpret_cast<uint64_t>(raddr) >> 32);
