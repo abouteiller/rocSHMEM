@@ -97,7 +97,8 @@ class GDABackend : public Backend {
   struct ibv_port_attr portinfo;
   union ibv_gid gid;
   int port = 1;
-  int gid_index;
+  int gid_index = 0;
+  int traffic_class = 0;
 
   uint32_t *heap_rkey = nullptr;
   struct ibv_mr *heap_mr = nullptr;
