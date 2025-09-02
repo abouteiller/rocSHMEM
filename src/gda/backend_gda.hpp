@@ -125,6 +125,8 @@ class GDABackend : public Backend {
   void setup_ibv();
 
  public:
+  friend GDAContext;
+
   /**
    * @copydoc Backend::Backend(unsigned)
    */
@@ -153,11 +155,6 @@ class GDABackend : public Backend {
    * @copydoc Backend::ctx_destroy
    */
   void ctx_destroy(Context *ctx) override;
-
-  /**
-   * @brief initialize context fields with shared backend structures during context contructor.
-   */
-  void initialize_context(GDAContext *ctx, int context_id);
 
   /**
    * @brief Abort the application.

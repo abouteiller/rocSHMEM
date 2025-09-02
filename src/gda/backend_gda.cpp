@@ -101,7 +101,6 @@ void GDABackend::init() {
 }
 
 GDABackend::~GDABackend() {
-  //TODO: delete the contextproxy?, undo initialize_context?
   /**
    * Destroy teams infrastructure
    * and team world
@@ -141,7 +140,7 @@ void GDABackend::read_env() {
     int gpu_dev = 0;
     CHECK_HIP(hipGetDevice(&gpu_dev));
     int nic_dev = rocshmem::GetClosestNicToGpu(gpu_dev, &requested_dev);
-    assert (nic_dev != -1); //TODO nic_dev is local, write only??? missing requested_dev=nic_dev?
+    assert (nic_dev != -1);
   }
   if ((value = getenv("ROCSHMEM_SQ_SIZE"))) {
     sq_size = atoi(value);
@@ -156,14 +155,14 @@ void GDABackend::setup_host_ctx() {
 
 void GDABackend::setup_default_ctx() {
   TeamInfo *tinfo = team_tracker.get_team_world()->tinfo_wrt_world;
-  default_context_proxy_ = GDADefaultContextProxyT(this, tinfo); //TODO: this seems to never be destructed
+  default_context_proxy_ = GDADefaultContextProxyT(this, tinfo);
 }
 
 void GDABackend::setup_ctxs() {
   setup_host_ctx();
   setup_default_ctx();
 
-  CHECK_HIP(hipMalloc(&ctx_array, sizeof(GDAContext) * maximum_num_contexts_ + 1)); //TODO: double check if +1 needed, and if default_ctx should also be in that array
+  CHECK_HIP(hipMalloc(&ctx_array, sizeof(GDAContext) * maximum_num_contexts_));
   // 0th context is default context
   for (size_t i = 0; i < maximum_num_contexts_; i++) {
     new (&ctx_array[i]) GDAContext(this, i + 1);
@@ -645,17 +644,6 @@ void GDABackend::setup_gpu_qps() {
   }
 }
 
-//TODO: we should also do the opposite of this, didn't find it
-void GDABackend::initialize_context(GDAContext *ctx, int context_id) {
-  CHECK_HIP(hipMalloc(&ctx->qps, sizeof(QueuePair) * num_pes));
-  CHECK_HIP(hipMemset(ctx->qps, 0, sizeof(QueuePair) * num_pes));
-  for (int i = 0; i < num_pes; i++) {
-    int offset = num_pes * context_id + i;
-    CHECK_HIP(hipMemcpy(&ctx->qps[i], &gpu_qps[offset], sizeof(QueuePair), hipMemcpyDefault));
-    ctx->qps[i].base_heap = ctx->base_heap;
-  }
-}
-
 //TODO this ifdef sequence should go in a nic-specific file, like it is for bnxt, maybe whats above too?
 #ifndef GDA_BNXT
 void GDABackend::ib_init(struct ibv_device* ib_dev, uint8_t port) {
@@ -774,7 +762,6 @@ void* GDABackend::pd_alloc(struct ibv_pd* pd, void* pd_context, size_t size, siz
   void* dev_ptr{nullptr};
   //TODO make this configurable, presumably we want it on device for all types?
 #ifdef GDA_IONIC
-  //TODO use the hip allocator class?
   CHECK_HIP(hipExtMallocWithFlags(reinterpret_cast<void**>(&dev_ptr), size, hipDeviceMallocUncached));
 #else
   CHECK_HIP(hipHostMalloc(reinterpret_cast<void**>(&dev_ptr), size, hipHostMallocDefault));
