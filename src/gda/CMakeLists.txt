@@ -49,3 +49,6 @@ target_link_libraries(
 )
 
 add_subdirectory(bnxt)
+if(GDA_IONIC)
+  add_subdirectory(ionic)
+endif()

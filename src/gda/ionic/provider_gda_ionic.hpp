@@ -32,8 +32,14 @@ extern "C" {
 }
 #endif
 
-#define SPIN_LOCK_INVALID  0xdead
-#define SPIN_LOCK_UNLOCKED 0x1234
-#define SPIN_LOCK_LOCKED   0xabcd
+struct ionicdv_funcs_t {
+  int (*get_ctx)(struct ionic_dv_ctx *dvctx, struct ibv_context *ibctx);
+  uint8_t (*qp_get_udma_idx)(struct ibv_qp *ibqp);
+  int (*get_cq)(struct ionic_dv_cq *dvcq, struct ibv_cq *ibcq, uint8_t udma_idx);
+  int (*get_qp)(struct ionic_dv_qp *dvqp, struct ibv_qp *ibqp);
+  int (*pd_set_sqcmb)(struct ibv_pd *ibpd, bool enable, bool expdb, bool require);
+  int (*pd_set_rqcmb)(struct ibv_pd *ibpd, bool enable, bool expdb, bool require);
+  int (*pd_set_udma_mask)(struct ibv_pd *ibpd, uint8_t udma_mask);
+};
 
 #endif  //LIBRARY_SRC_GDA_IONIC_GDA_PROVIDER_HPP_

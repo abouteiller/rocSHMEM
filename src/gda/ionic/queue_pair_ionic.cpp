@@ -43,6 +43,10 @@ __device__ uint64_t QueuePair::get_same_qp_lane_mask() {
   return lane_mask;
 }
 
+#define SPIN_LOCK_INVALID  0xdead
+#define SPIN_LOCK_UNLOCKED 0x1234
+#define SPIN_LOCK_LOCKED   0xabcd
+
 __device__ bool QueuePair::cq_lock_try_acquire(uint64_t activemask) {
   uint32_t cq_lock_val = SPIN_LOCK_INVALID;
 
