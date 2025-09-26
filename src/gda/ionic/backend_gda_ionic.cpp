@@ -79,12 +79,12 @@ void GDABackend::ionic_initialize_gpu_qp(QueuePair* gpu_qp, int conn_num) {
   gpu_qp->inline_threshold = 32;
 }
 
-void GDABackend::ionic_setup_parent_domain() {
+void GDABackend::ionic_setup_parent_domain(struct ibv_parent_domain_init_attr* pattr) {
   ionic_dv.pd_set_sqcmb(pd_parent, false, false, false);
   ionic_dv.pd_set_rqcmb(pd_parent, false, false, false);
 
   for (int uxdma_i = 0; uxdma_i < 2; ++uxdma_i) {
-    pd_uxdma[uxdma_i] = ibv_alloc_parent_domain(context, &pattr);
+    pd_uxdma[uxdma_i] = ibv_alloc_parent_domain(context, pattr);
     CHECK_NNULL(pd_uxdma[uxdma_i], "ibv_alloc_parent_domain (uxdma)");
 
     ionic_dv.pd_set_sqcmb(pd_uxdma[uxdma_i], false, false, false);

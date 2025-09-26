@@ -42,4 +42,8 @@ struct ionicdv_funcs_t {
   int (*pd_set_udma_mask)(struct ibv_pd *ibpd, uint8_t udma_mask);
 };
 
+#define SPIN_LOCK_INVALID  0xdead
+#define SPIN_LOCK_UNLOCKED 0x1234
+#define SPIN_LOCK_LOCKED   0xabcd
+
 #endif  //LIBRARY_SRC_GDA_IONIC_GDA_PROVIDER_HPP_

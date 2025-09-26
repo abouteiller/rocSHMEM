@@ -991,7 +991,7 @@ void GDABackend::create_parent_domain() {
   dump_ibv_pd(pd_parent);
 
 #ifdef GDA_IONIC
-  ionic_setup_parent_domain();
+  ionic_setup_parent_domain(&pattr);
 #endif /* GDA_IONIC */
 }
 
