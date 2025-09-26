@@ -329,6 +329,71 @@ __device__ void QueuePair::mlx5_post_wqe_rma(int pe, int32_t size, uintptr_t *la
 }
 #endif // GDA_MLX5
 
+#if defined(GDA_IONIC)
+__device__ uint64_t QueuePair::ionic_post_wqe_amo(int pe, int32_t size, uintptr_t *raddr, uint8_t opcode,
+                                                  int64_t atomic_data, int64_t atomic_cmp, bool fetching) {
+  uint64_t activemask = get_same_qp_lane_mask();
+  uint32_t num_wqes = get_active_lane_count(activemask);
+  uint32_t my_logical_lane_id = get_active_lane_num(activemask);
+  bool is_leader{my_logical_lane_id == 0};
+  const uint64_t leader_phys_lane_id = get_first_active_lane_id(activemask);
+  uint32_t my_sq_prod = reserve_sq(activemask, num_wqes);
+  uint32_t my_sq_pos = my_sq_prod + my_logical_lane_id;
+  struct ionic_v1_wqe *wqe = &ionic_sq_buf[my_sq_pos & sq_mask];
+  uint32_t cons;
+
+  uint64_t* wave_fetch_atomic{nullptr};
+  if (fetching) {
+    if (is_leader) {
+      auto res = fetching_atomic_freelist->pop_front();
+      while (!res.success) {
+        res = fetching_atomic_freelist->pop_front();
+      }
+      wave_fetch_atomic = res.value;
+    }
+    wave_fetch_atomic = (uint64_t*)__shfl((uint64_t)wave_fetch_atomic, leader_phys_lane_id);
+  }
+
+  wqe->base.wqe_idx = my_sq_pos;
+  wqe->base.op = opcode;
+  wqe->base.num_sge_key = 1;
+
+  wqe->base.flags = (my_sq_pos & (sq_mask + 1))?
+    swap_endian_val<uint16_t>(0):
+    swap_endian_val<uint16_t>(IONIC_V1_FLAG_COLOR);
+  wqe->base.imm_data_key = swap_endian_val<uint32_t>(0);
+
+  wqe->atomic_v2.remote_va_high = swap_endian_val<uint32_t>(reinterpret_cast<uint64_t>(raddr) >> 32);
+  wqe->atomic_v2.remote_va_low = swap_endian_val<uint32_t>(reinterpret_cast<uint64_t>(raddr));
+  wqe->atomic_v2.remote_rkey = swap_endian_val<uint32_t>(rkey);
+  wqe->atomic_v2.swap_add_high = swap_endian_val<uint32_t>(atomic_data >> 32);
+  wqe->atomic_v2.swap_add_low = swap_endian_val<uint32_t>(atomic_data);
+  wqe->atomic_v2.compare_high = swap_endian_val<uint32_t>(atomic_cmp >> 32);
+  wqe->atomic_v2.compare_low = swap_endian_val<uint32_t>(atomic_cmp);
+
+  if (fetching) {
+    wqe->atomic_v2.local_va = swap_endian_val<uint64_t>(reinterpret_cast<uint64_t>(wave_fetch_atomic + my_logical_lane_id));
+    wqe->atomic_v2.lkey = swap_endian_val<uint32_t>(fetching_atomic_lkey);
+  } else {
+    wqe->atomic_v2.local_va = swap_endian_val<uint64_t>(reinterpret_cast<uint64_t>(nonfetching_atomic));
+    wqe->atomic_v2.lkey = swap_endian_val<uint32_t>(nonfetching_atomic_lkey);
+  }
+
+  cons = commit_sq(is_last_active_lane(activemask), my_sq_prod, num_wqes, wqe);
+
+  uint64_t ret{0};
+  if (fetching) {
+    ionic_quiet_internal(activemask, cons);
+    ret = wave_fetch_atomic[my_logical_lane_id];
+    __atomic_signal_fence(__ATOMIC_SEQ_CST);
+    if (is_leader) {
+      fetching_atomic_freelist->push_back(wave_fetch_atomic);
+    }
+  }
+  return ret;
+}
+#endif //defined(GDA_IONIC)
+
 #if defined(GDA_MLX5)
 __device__ uint64_t QueuePair::mlx5_post_wqe_amo(int pe, int32_t size, uintptr_t *raddr, uint8_t opcode,
                                                  int64_t atomic_data, int64_t atomic_cmp, bool fetching) {
