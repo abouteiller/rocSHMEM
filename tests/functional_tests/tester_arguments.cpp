@@ -26,12 +26,13 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <rocshmem/rocshmem.hpp>
+#include <nvshmem.h>
 
 #include "tester.hpp"
 
-using namespace rocshmem;
-
+#if 0
+using namespace nvshmem;
+#endif
 TesterArguments::TesterArguments(int argc, char *argv[]) {
   for (int i = 1; i < argc; i++) {
     std::string arg = argv[i];
@@ -132,7 +133,7 @@ TesterArguments::TesterArguments(int argc, char *argv[]) {
 
 void TesterArguments::show_usage(std::string executable_name) {
   std::cout << "Usage: " << executable_name << std::endl;
-  std::cout << "\t-t <number of rocshmem service threads>\n";
+  std::cout << "\t-t <number of nvshmem service threads>\n";
   std::cout << "\t-w <number of workgroups>\n";
   std::cout << "\t-s <maximum message size (in bytes)>\n";
   std::cout << "\t-a <algorithm number to test>\n";
@@ -143,9 +144,9 @@ void TesterArguments::show_usage(std::string executable_name) {
   std::cout << "\t-x <shmem context>\n";
 }
 
-void TesterArguments::get_rocshmem_arguments() {
-  numprocs = rocshmem_n_pes();
-  myid = rocshmem_my_pe();
+void TesterArguments::get_nvshmem_arguments() {
+  numprocs = nvshmem_n_pes();
+  myid = nvshmem_my_pe();
 
   TestType type = (TestType)algorithm;
   if ((type != BarrierAllTestType) && (type != WAVEBarrierAllTestType) &&

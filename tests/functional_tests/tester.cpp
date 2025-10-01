@@ -29,9 +29,10 @@
 
 #include <functional>
 #include <iostream>
-#include <rocshmem/rocshmem.hpp>
+#include <nvshmem.h>
 #include <vector>
 
+#if 0
 #include "amo_bitwise_tester.hpp"
 #include "amo_extended_tester.hpp"
 #include "amo_standard_tester.hpp"
@@ -54,8 +55,11 @@
 #include "team_ctx_primitive_tester.hpp"
 #include "team_fcollect_tester.hpp"
 #include "team_reduction_tester.hpp"
+#endif
 #include "wavefront_primitives.hpp"
+#if 0
 #include "workgroup_primitives.hpp"
+#endif
 
 Tester::Tester(TesterArguments args) : args(args) {
   _type = (TestType)args.algorithm;
@@ -106,6 +110,7 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
   TestType type = (TestType)args.algorithm;
 
   switch (type) {
+#if 0
     case InitTestType:
       if (rank == 0) std::cout << "Init ###" << std::endl;
       testers.push_back(new EmptyTester(args));
@@ -425,6 +430,7 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
         std::cout << "Non-Blocking WAVE level Gets ###" << std::endl;
       testers.push_back(new WaveFrontPrimitiveTester(args));
       return testers;
+#endif
     case WAVEPutTestType:
       if (rank == 0)
         std::cout << "Blocking WAVE level Puts ###" << std::endl;
@@ -435,6 +441,7 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
         std::cout << "Non-Blocking WAVE level Puts ###" << std::endl;
       testers.push_back(new WaveFrontPrimitiveTester(args));
       return testers;
+#if 0
     case PutSignalTestType:
       if (rank == 0) std::cout << "Putmem Signal ###" << std::endl;
       testers.push_back(new SignalingOperationsTester(args, ROCSHMEM_SIGNAL_SET));
@@ -477,6 +484,7 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
       if (rank == 0) std::cout << "Wave Signal Fetch ###" << std::endl;
       testers.push_back(new SignalingOperationsTester(args));
       return testers;
+#endif
     default:
       if (rank == 0) std::cout << "Empty Test ###" << std::endl;
       return testers;
@@ -558,7 +566,7 @@ bool Tester::peLaunchesKernel() {
    * The PE assigned 0 is always active in these tests.
    */
   is_launcher = args.myid == 0;
-
+#if 0
   /**
    * Some test types are active on both sides.
    */
@@ -575,7 +583,7 @@ bool Tester::peLaunchesKernel() {
                 (_type == RandomAccessTestType) || (_type == PingAllTestType) ||
                 (_type == TeamBarrierTestType) || (_type == TeamWAVEBarrierTestType) ||
                 (_type == TeamWGBarrierTestType);
-
+#endif
   return is_launcher;
 }
 
@@ -637,7 +645,7 @@ void flush_hdp() {
 }
 
 void Tester::barrier() {
-  rocshmem_barrier_all();
+  nvshmem_barrier_all();
   flush_hdp();
 }
 

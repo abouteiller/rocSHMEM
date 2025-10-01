@@ -28,7 +28,7 @@ cmake_minimum_required(VERSION 3.16.3 FATAL_ERROR)
 # PROJECT
 ###############################################################################
 include(${CMAKE_SOURCE_DIR}/cmake/setup_project.cmake)
-project(rocshmem_functional_tests VERSION 1.0.0 LANGUAGES CXX)
+project(nvshmem_functional_tests VERSION 1.0.0 LANGUAGES CXX)
 
 ###############################################################################
 # SOURCES
@@ -44,27 +44,9 @@ target_include_directories(
 target_sources(
   ${PROJECT_NAME}
   PRIVATE
-    barrier_all_tester.cpp
-    sync_tester.cpp
     test_driver.cpp
     tester.cpp
     tester_arguments.cpp
-    ping_pong_tester.cpp
-    ping_all_tester.cpp
-    primitive_tester.cpp
-    primitive_mr_tester.cpp
-    default_ctx_primitive_tester.cpp
-    team_ctx_primitive_tester.cpp
-    team_ctx_infra_tester.cpp
-    amo_bitwise_tester.cpp
-    amo_extended_tester.cpp
-    amo_standard_tester.cpp
-    random_access_tester.cpp
-    shmem_ptr_tester.cpp
-    signaling_operations_tester.cpp
-    signaling_operations_tester.hpp
-    workgroup_primitives.cpp
-    empty_tester.cpp
     wavefront_primitives.cpp
 )
 
@@ -74,7 +56,6 @@ target_sources(
 if (BUILD_TESTS_ONLY)
   find_package(MPI REQUIRED)
   find_package(hip REQUIRED PATHS /opt/rocm)
-  find_package(rocshmem REQUIRED PATHS /opt/rocm)
 
   target_include_directories(
     ${PROJECT_NAME}
@@ -84,7 +65,8 @@ if (BUILD_TESTS_ONLY)
   )
 endif()
 
-find_package(PMIx)
+#find_package(PMIx)
+find_package(MPI)
 
 target_compile_definitions(
   ${PROJECT_NAME}
@@ -92,9 +74,23 @@ target_compile_definitions(
     $<$<BOOL:${PMIx_FOUND}>:HAVE_PMIX=1>
 )
 
+target_compile_options(
+  ${PROJECT_NAME}
+  PRIVATE
+  -fgpu-rdc
+)
+
+target_include_directories(
+  ${PROJECT_NAME}
+  PRIVATE
+  /home/abouteil/alibaba_nvshmem_eic/build/src/include
+)
+
 target_link_libraries(
   ${PROJECT_NAME}
   PRIVATE
-    roc::rocshmem
-    PMIx::pmix
+  #-L/root/nvshmem_rocm/build/src/lib/
+  -L/home/abouteil/alibaba_nvshmem_eic/build/src/lib
+  -lnvshmem_device -lnvshmem_host -fgpu-rdc -L/usr/local/lib MPI::MPI_CXX -lrt -ldl -lpthread
 )
+

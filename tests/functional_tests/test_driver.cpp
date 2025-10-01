@@ -22,11 +22,13 @@
  * IN THE SOFTWARE.
  *****************************************************************************/
 
-#include <rocshmem/rocshmem.hpp>
+#include <nvshmem.h>
 #include <vector>
 
 #include "tester.hpp"
 #include "tester_arguments.hpp"
+
+#include <mpi.h>
 
 #if defined(HAVE_PMIX)
 #include <pmix.h>
@@ -126,7 +128,9 @@ static void pmix_bcast(void *buf, size_t nbytes, char *key, int root)
 }
 #endif
 
-using namespace rocshmem;
+#if 0
+using namespace nvshmem;
+#endif
 
 int main(int argc, char *argv[]) {
   /**
@@ -144,60 +148,73 @@ int main(int argc, char *argv[]) {
   }
   CHECK_HIP(hipSetDevice(atoi(ompi_local_rank)));
 
-  /**
-   * Must initialize rocshmem to access arguments needed by the tester.
+
+   MPI_Init(NULL,NULL);
+   nvshmemx_init_attr_t attr;
+   MPI_Comm comm = MPI_COMM_WORLD;
+   attr.mpi_comm = &comm;
+
+   nvshmemx_init_attr(NVSHMEMX_INIT_WITH_MPI_COMM, &attr);
+
+ 
+ 
+ 
+ 
+ 
+   /**
+   * Must initialize nvshmem to access arguments needed by the tester.
    */
 #ifdef HAVE_PMIX
   int test_uuid = 0;
-  char *rocshmem_test_uuid = getenv("ROCSHMEM_TEST_UUID");
-  if (rocshmem_test_uuid != nullptr) {
-    test_uuid = atoi(rocshmem_test_uuid);
+  char *nvshmem_test_uuid = getenv("ROCSHMEM_TEST_UUID");
+  if (nvshmem_test_uuid != nullptr) {
+    test_uuid = atoi(nvshmem_test_uuid);
   }
 
   if (test_uuid) {
     int ret;
     int rank, nranks;
-    rocshmem_uniqueid_t uid;
-    rocshmem_init_attr_t attr;
+    nvshmem_uniqueid_t uid;
+    nvshmem_init_attr_t attr;
 
     init_pmix(&rank, &nranks);
     if (rank == 0) {
-      ret = rocshmem_get_uniqueid (&uid);
+      ret = nvshmem_get_uniqueid (&uid);
       if (ret != ROCSHMEM_SUCCESS) {
-        std::cout << rank << ": Error in rocshmem_get_uniqueid. Aborting.\n";
+        std::cout << rank << ": Error in nvshmem_get_uniqueid. Aborting.\n";
         abort();
       }
     }
 
-    char key[] = "rocshmem-uuid";
-    pmix_bcast(&uid, sizeof(rocshmem_uniqueid_t), key, 0);
+    char key[] = "nvshmem-uuid";
+    pmix_bcast(&uid, sizeof(nvshmem_uniqueid_t), key, 0);
 
-    ret = rocshmem_set_attr_uniqueid_args(rank, nranks, &uid, &attr);
+    ret = nvshmem_set_attr_uniqueid_args(rank, nranks, &uid, &attr);
     if (ret != ROCSHMEM_SUCCESS) {
-      std::cout << rank << ": Error in rocshmem_set_attr_uniqueid_args. Aborting.\n";
+      std::cout << rank << ": Error in nvshmem_set_attr_uniqueid_args. Aborting.\n";
       abort();
     }
 
-    ret = rocshmem_init_attr(ROCSHMEM_INIT_WITH_UNIQUEID, &attr);
+    ret = nvshmem_init_attr(ROCSHMEM_INIT_WITH_UNIQUEID, &attr);
     if (ret != ROCSHMEM_SUCCESS) {
-      std::cout << rank << ": Error in rocshmem_init_attr. Aborting.\n";
+      std::cout << rank << ": Error in nvshmem_init_attr. Aborting.\n";
       abort();
     }
 
 #ifdef VERBOSE
-    std::cout << rank << ": rocshmem_init_attr SUCCESS\n";
+    std::cout << rank << ": nvshmem_init_attr SUCCESS\n";
 #endif
   } else {
-    rocshmem_init();
+    nvshmem_init();
   }
 #else
-  rocshmem_init();
+//  nvshmem_init();
 #endif
 
   /**
-   * Now grab the arguments from rocshmem.
+   * Now grab the arguments from nvshmem.
    */
-  args.get_rocshmem_arguments();
+  args.get_nvshmem_arguments();
 
   /**
    * Using the arguments we just constructed, call the tester factory
@@ -219,10 +236,10 @@ int main(int argc, char *argv[]) {
   }
 
   /**
-   * The rocshmem library needs to be cleaned up with this call. It pairs
+   * The nvshmem library needs to be cleaned up with this call. It pairs
    * with the init function above.
    */
-  rocshmem_finalize();
+  nvshmem_finalize();
 
 #ifdef HAVE_PMIX
   if (test_uuid) {
