@@ -31,7 +31,7 @@
 
 #include <cstdio>
 
-#include "rocshmem/rocshmem_config.h"  // NOLINT(build/include_subdir)
+//#include "rocshmem/rocshmem_config.h"  // NOLINT(build/include_subdir)
 #include "constants.hpp"
 #include "assembly.hpp"
 
