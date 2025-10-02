@@ -128,9 +128,7 @@ static void pmix_bcast(void *buf, size_t nbytes, char *key, int root)
 }
 #endif
 
-#if 0
-using namespace nvshmem;
-#endif
+using namespace rocshmem;
 
 int main(int argc, char *argv[]) {
   /**
@@ -214,7 +212,7 @@ int main(int argc, char *argv[]) {
   /**
    * Now grab the arguments from nvshmem.
    */
-  args.get_nvshmem_arguments();
+  args.get_arguments();
 
   /**
    * Using the arguments we just constructed, call the tester factory

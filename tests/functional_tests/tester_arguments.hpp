@@ -47,7 +47,7 @@ class TesterArguments {
    * Initialize nvshmem members
    * Valid after nvshmem_init function called.
    */
-  void get_nvshmem_arguments();
+  void get_arguments();
 
  private:
   /**

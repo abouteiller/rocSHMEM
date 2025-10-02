@@ -30,16 +30,18 @@
 
 #include "tester.hpp"
 
-#if 0
-using namespace nvshmem;
-#endif
+using namespace rocshmem;
+
 TesterArguments::TesterArguments(int argc, char *argv[]) {
   for (int i = 1; i < argc; i++) {
     std::string arg = argv[i];
+#if 0
     if (arg == "-t") {
       i++;
       num_threads = atoi(argv[i]);
-    } else if (arg == "-w") {
+    } else 
+#endif
+    if (arg == "-w") {
       i++;
       num_wgs = atoi(argv[i]);
     } else if (arg == "-s") {
@@ -51,6 +53,7 @@ TesterArguments::TesterArguments(int argc, char *argv[]) {
     } else if (arg == "-z") {
       i++;
       wg_size = atoi(argv[i]);
+#if 0
     } else if (arg == "-c") {
       i++;
       coal_coef = atoi(argv[i]);
@@ -63,6 +66,7 @@ TesterArguments::TesterArguments(int argc, char *argv[]) {
     } else if (arg == "-x") {
       i++;
       shmem_context = atoi(argv[i]);
+#endif
     } else {
       show_usage(argv[0]);
       exit(-1);
@@ -133,18 +137,18 @@ TesterArguments::TesterArguments(int argc, char *argv[]) {
 
 void TesterArguments::show_usage(std::string executable_name) {
   std::cout << "Usage: " << executable_name << std::endl;
-  std::cout << "\t-t <number of nvshmem service threads>\n";
+  //std::cout << "\t-t <number of shmem service threads>\n";
   std::cout << "\t-w <number of workgroups>\n";
   std::cout << "\t-s <maximum message size (in bytes)>\n";
   std::cout << "\t-a <algorithm number to test>\n";
   std::cout << "\t-z <WorkGroup Size>\n";
-  std::cout << "\t-c <Coalescing Coefficient>\n";
-  std::cout << "\t-o <Operation type for the random_access test>\n";
-  std::cout << "\t-ta <Number of Thread Accessing the communication>\n";
-  std::cout << "\t-x <shmem context>\n";
+  //std::cout << "\t-c <Coalescing Coefficient>\n";
+  //std::cout << "\t-o <Operation type for the random_access test>\n";
+  //std::cout << "\t-ta <Number of Thread Accessing the communication>\n";
+  //std::cout << "\t-x <shmem context>\n";
 }
 
-void TesterArguments::get_nvshmem_arguments() {
+void TesterArguments::get_arguments() {
   numprocs = nvshmem_n_pes();
   myid = nvshmem_my_pe();
 
