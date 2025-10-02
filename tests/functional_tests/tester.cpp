@@ -35,10 +35,12 @@
 #if 0
 #include "amo_bitwise_tester.hpp"
 #include "amo_extended_tester.hpp"
+#endif
 #include "amo_standard_tester.hpp"
 #include "default_ctx_primitive_tester.hpp"
 #include "barrier_all_tester.hpp"
 #include "empty_tester.hpp"
+#if 0
 #include "ping_all_tester.hpp"
 #include "ping_pong_tester.hpp"
 #include "primitive_mr_tester.hpp"
@@ -57,9 +59,7 @@
 #include "team_reduction_tester.hpp"
 #endif
 #include "wavefront_primitives.hpp"
-#if 0
 #include "workgroup_primitives.hpp"
-#endif
 
 Tester::Tester(TesterArguments args) : args(args) {
   _type = (TestType)args.algorithm;

@@ -44,9 +44,27 @@ target_include_directories(
 target_sources(
   ${PROJECT_NAME}
   PRIVATE
+    #barrier_all_tester.cpp
+    #sync_tester.cpp
     test_driver.cpp
     tester.cpp
     tester_arguments.cpp
+    #ping_pong_tester.cpp
+    #ping_all_tester.cpp
+    #primitive_tester.cpp
+    #primitive_mr_tester.cpp
+    default_ctx_primitive_tester.cpp
+    #team_ctx_primitive_tester.cpp
+    #team_ctx_infra_tester.cpp
+    #amo_bitwise_tester.cpp
+    #amo_extended_tester.cpp
+    amo_standard_tester.cpp
+    #random_access_tester.cpp
+    #shmem_ptr_tester.cpp
+    #signaling_operations_tester.cpp
+    #signaling_operations_tester.hpp
+    workgroup_primitives.cpp
+    empty_tester.cpp
     wavefront_primitives.cpp
 )
 
@@ -66,7 +84,6 @@ if (BUILD_TESTS_ONLY)
 endif()
 
 #find_package(PMIx)
-find_package(MPI)
 
 target_compile_definitions(
   ${PROJECT_NAME}
