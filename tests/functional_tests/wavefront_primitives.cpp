@@ -24,12 +24,11 @@
 
 #include "wavefront_primitives.hpp"
 
-#include <nvshmem.h>
+#include <rocshmem_nvshmem.hpp>
 
 #include <numeric>
 
 using namespace rocshmem;
-
 
 /******************************************************************************
  * DEVICE TEST KERNEL
@@ -38,10 +37,15 @@ __global__ void WaveFrontPrimitiveTest(int loop, int skip,
                                        long long int *start_time,
                                        long long int *end_time, char *source,
                                        char *dest, size_t size, TestType type,
-                                       int ctx_type, int wf_size) {
+                                       ShmemContextType ctx_type,
+                                       int wf_size) {
+  __shared__ rocshmem_ctx_t ctx;
   int wg_id = get_flat_grid_id();
 
-  // Calculate start index for each warpfront
+  rocshmem_wg_init();
+  rocshmem_wg_ctx_create(ctx_type, &ctx);
+
+  // Calculate start index for each wavefront
   int wf_id = get_flat_block_id() / wf_size;
   int wg_offset = wg_id * ((get_flat_block_size() - 1 ) / wf_size + 1);
   int idx = wf_id + wg_offset;
@@ -52,34 +56,37 @@ __global__ void WaveFrontPrimitiveTest(int loop, int skip,
   for (int i = 0; i < loop + skip; i++) {
     if (i == skip) {
       // Ensures all RMA calls from the skip loops are completed
-      if(is_thread_zero_in_warp()) {
-        nvshmem_quiet();
+      if(is_thread_zero_in_wave()) {
+        rocshmem_ctx_quiet(ctx);
       }
       __syncthreads();
       start_time[idx] = wall_clock64();
     }
     switch (type) {
       case WAVEGetTestType:
-        nvshmemx_getmem_warp(dest, source, size, 1);
+        rocshmem_ctx_getmem_wave(ctx, dest, source, size, 1);
         break;
       case WAVEGetNBITestType:
-        nvshmemx_getmem_nbi_warp(dest, source, size, 1);
+        rocshmem_ctx_getmem_nbi_wave(ctx, dest, source, size, 1);
         break;
       case WAVEPutTestType:
-        nvshmemx_putmem_warp(dest, source, size, 1);
+        rocshmem_ctx_putmem_wave(ctx, dest, source, size, 1);
         break;
       case WAVEPutNBITestType:
-        nvshmemx_putmem_nbi_warp(dest, source, size, 1);
+        rocshmem_ctx_putmem_nbi_wave(ctx, dest, source, size, 1);
         break;
       default:
         break;
     }
   }
 
-  if (is_thread_zero_in_warp()) {
-    nvshmem_quiet();
+  if (is_thread_zero_in_wave()) {
+    rocshmem_ctx_quiet(ctx);
     end_time[idx] = wall_clock64();
   }
+
+  rocshmem_wg_ctx_destroy(&ctx);
+  rocshmem_wg_finalize();
 }
 
 /******************************************************************************
@@ -88,19 +95,19 @@ __global__ void WaveFrontPrimitiveTest(int loop, int skip,
 WaveFrontPrimitiveTester::WaveFrontPrimitiveTester(TesterArguments args)
     : Tester(args) {
   size_t buff_size = args.max_msg_size * args.num_wgs * num_warps;
-  source = (char *)nvshmem_malloc(buff_size);
-  dest = (char *)nvshmem_malloc(buff_size);
+  source = (char *)rocshmem_malloc(buff_size);
+  dest = (char *)rocshmem_malloc(buff_size);
 
   if (source == nullptr || dest == nullptr) {
     std::cerr << "Error allocating memory from symmetric heap" << std::endl;
     std::cerr << "source: " << source << ", dest: " << dest << std::endl;
     if (source) {
-      nvshmem_free(source);
+      rocshmem_free(source);
     }
     if (dest) {
-      nvshmem_free(dest);
+      rocshmem_free(dest);
     }
-    nvshmem_global_exit(1);
+    rocshmem_global_exit(1);
   }
 
   for(size_t i = 0; i < buff_size; i++) {
@@ -109,8 +116,8 @@ WaveFrontPrimitiveTester::WaveFrontPrimitiveTester(TesterArguments args)
 }
 
 WaveFrontPrimitiveTester::~WaveFrontPrimitiveTester() {
-  nvshmem_free(source);
-  nvshmem_free(dest);
+  rocshmem_free(source);
+  rocshmem_free(dest);
 }
 
 void WaveFrontPrimitiveTester::resetBuffers(size_t size) {

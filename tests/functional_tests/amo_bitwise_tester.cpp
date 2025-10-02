@@ -25,7 +25,7 @@
 #include "amo_bitwise_tester.hpp"
 
 #include <iostream>
-#include <rocshmem/rocshmem.hpp>
+#include <rocshmem_nvshmem.hpp>
 
 using namespace rocshmem;
 

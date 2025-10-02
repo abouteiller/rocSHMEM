@@ -25,7 +25,7 @@
 #ifndef _SYNC_TESTER_HPP_
 #define _SYNC_TESTER_HPP_
 
-#include <rocshmem/rocshmem.hpp>
+#include <rocshmem_nvshmem.hpp>
 
 #include "tester.hpp"
 

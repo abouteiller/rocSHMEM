@@ -24,7 +24,7 @@
 
 #include "shmem_ptr_tester.hpp"
 
-#include <rocshmem/rocshmem.hpp>
+#include <rocshmem_nvshmem.hpp>
 
 using namespace rocshmem;
 

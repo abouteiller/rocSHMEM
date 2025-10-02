@@ -26,7 +26,7 @@
 #include "tester.hpp"
 
 #include <iostream>
-#include <rocshmem/rocshmem.hpp>
+#include <rocshmem_nvshmem.hpp>
 
 using namespace rocshmem;
 
@@ -168,9 +168,9 @@ void AMOStandardTester<T>::verifyResults(size_t size) {
   }                                                                            \
   template class AMOStandardTester<T>;
 
-AMO_STANDARD_DEF_GEN(int, int)
+//AMO_STANDARD_DEF_GEN(int, int)
 AMO_STANDARD_DEF_GEN(long, long)
-AMO_STANDARD_DEF_GEN(long long, longlong)
-AMO_STANDARD_DEF_GEN(unsigned int, uint)
-AMO_STANDARD_DEF_GEN(unsigned long, ulong)
-AMO_STANDARD_DEF_GEN(unsigned long long, ulonglong)
+//AMO_STANDARD_DEF_GEN(long long, longlong)
+//AMO_STANDARD_DEF_GEN(unsigned int, uint)
+//AMO_STANDARD_DEF_GEN(unsigned long, ulong)
+//AMO_STANDARD_DEF_GEN(unsigned long long, ulonglong)

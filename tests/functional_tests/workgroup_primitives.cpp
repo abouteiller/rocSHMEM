@@ -24,7 +24,7 @@
 
 #include "workgroup_primitives.hpp"
 
-#include <rocshmem/rocshmem.hpp>
+#include <rocshmem_nvshmem.hpp>
 
 #include <numeric>
 

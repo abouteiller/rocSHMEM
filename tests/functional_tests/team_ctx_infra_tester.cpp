@@ -24,7 +24,7 @@
 
 #include "team_ctx_infra_tester.hpp"
 
-#include <rocshmem/rocshmem.hpp>
+#include <rocshmem_nvshmem.hpp>
 
 #include <cstdlib>
 #include <cassert>
