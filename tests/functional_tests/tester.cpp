@@ -43,8 +43,10 @@
 #if 0
 #include "ping_all_tester.hpp"
 #include "ping_pong_tester.hpp"
+#endif
 #include "primitive_mr_tester.hpp"
 #include "primitive_tester.hpp"
+#if 0
 #include "random_access_tester.hpp"
 #include "shmem_ptr_tester.hpp"
 #include "signaling_operations_tester.hpp"
@@ -110,7 +112,6 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
   TestType type = (TestType)args.algorithm;
 
   switch (type) {
-#if 0
     case InitTestType:
       if (rank == 0) std::cout << "Init ###" << std::endl;
       testers.push_back(new EmptyTester(args));
@@ -151,6 +152,7 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
         std::cout << "Default context Non-Blocking Puts ###" << std::endl;
       testers.push_back(new DefaultCTXPrimitiveTester(args));
       return testers;
+#if 0
     case TeamCtxInfraTestType:
       if (rank == 0) std::cout << "Team Ctx Infra test ###" << std::endl;
       testers.push_back(new TeamCtxInfraTester(args));
@@ -186,6 +188,7 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
       if (rank == 0) std::cout << "Non-Blocking Team Ctx Puts ###" << std::endl;
       testers.push_back(new TeamCtxPrimitiveTester(args));
       return testers;
+#endif
     case PTestType:
       if (rank == 0) std::cout << "P Test ###" << std::endl;
       testers.push_back(new PrimitiveTester(args));
@@ -194,6 +197,7 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
       if (rank == 0) std::cout << "G Test ###" << std::endl;
       testers.push_back(new PrimitiveTester(args));
       return testers;
+#if 0
     case TeamReductionTestType:
       if (rank == 0)
         std::cout << "All-to-All Team-based Reduction ###" << std::endl;
@@ -247,18 +251,20 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
       testers.push_back(new TeamFcollectTester<char>(args));
       testers.push_back(new TeamFcollectTester<unsigned char>(args));
       return testers;
+#endif
     case AMO_FAddTestType:
       if (rank == 0) std::cout << "AMO Fetch_Add ###" << std::endl;
-      testers.push_back(new AMOStandardTester<long long>(args));
+//      testers.push_back(new AMOStandardTester<long long>(args));
       testers.push_back(new AMOStandardTester<long>(args));
-      testers.push_back(new AMOStandardTester<int>(args));
+//      testers.push_back(new AMOStandardTester<int>(args));
       return testers;
     case AMO_FIncTestType:
       if (rank == 0) std::cout << "AMO Fetch_Inc ###" << std::endl;
-      testers.push_back(new AMOStandardTester<long long>(args));
+//      testers.push_back(new AMOStandardTester<long long>(args));
       testers.push_back(new AMOStandardTester<long>(args));
-      testers.push_back(new AMOStandardTester<int>(args));
+//      testers.push_back(new AMOStandardTester<int>(args));
       return testers;
+#if 0
     case AMO_FetchTestType:
       if (rank == 0) std::cout << "AMO Fetch ###" << std::endl;
       testers.push_back(new AMOExtendedTester<long long>(args));
@@ -271,12 +277,14 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
       testers.push_back(new AMOStandardTester<long>(args));
       testers.push_back(new AMOStandardTester<int>(args));
       return testers;
+#endif
     case AMO_AddTestType:
       if (rank == 0) std::cout << "AMO Add ###" << std::endl;
-      testers.push_back(new AMOStandardTester<long long>(args));
+//      testers.push_back(new AMOStandardTester<long long>(args));
       testers.push_back(new AMOStandardTester<long>(args));
-      testers.push_back(new AMOStandardTester<int>(args));
+//      testers.push_back(new AMOStandardTester<int>(args));
       return testers;
+#if 0
     case AMO_SetTestType:
       if (rank == 0) std::cout << "AMO Set ###" << std::endl;
       testers.push_back(new AMOExtendedTester<long long>(args));
@@ -325,12 +333,14 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
       testers.push_back(new AMOBitwiseTester<unsigned long>(args));
       testers.push_back(new AMOBitwiseTester<unsigned int>(args));
       return testers;
+#endif
     case AMO_IncTestType:
       if (rank == 0) std::cout << "AMO Inc ###" << std::endl;
-      testers.push_back(new AMOStandardTester<long long>(args));
+//      testers.push_back(new AMOStandardTester<long long>(args));
       testers.push_back(new AMOStandardTester<long>(args));
-      testers.push_back(new AMOStandardTester<int>(args));
+//      testers.push_back(new AMOStandardTester<int>(args));
       return testers;
+#if 0
     case PingPongTestType:
       if (rank == 0) std::cout << "PingPong ###" << std::endl;
       testers.push_back(new PingPongTester(args));
@@ -339,6 +349,7 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
       if (rank == 0) std::cout << "PingAll ###" << std::endl;
       testers.push_back(new PingAllTester(args));
       return testers;
+#endif
     case BarrierAllTestType:
       if (rank == 0) std::cout << "Barrier_All ###" << std::endl;
       testers.push_back(new BarrierAllTester(args));
@@ -351,6 +362,7 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
       if (rank == 0) std::cout << "WG Barrier_All ###" << std::endl;
       testers.push_back(new BarrierAllTester(args));
       return testers;
+#if 0
     case TeamBarrierTestType:
       if (rank == 0) std::cout << "Team Barrier Test ###" << std::endl;
       testers.push_back(new TeamBarrierTester(args));
@@ -395,6 +407,7 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
       if (rank == 0) std::cout << "Shmem_Ptr ###" << std::endl;
       testers.push_back(new ShmemPtrTester(args));
       return testers;
+#endif
     case WGGetTestType:
       if (rank == 0)
         std::cout << "Blocking WG level Gets ###" << std::endl;
@@ -430,7 +443,6 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
         std::cout << "Non-Blocking WAVE level Gets ###" << std::endl;
       testers.push_back(new WaveFrontPrimitiveTester(args));
       return testers;
-#endif
     case WAVEPutTestType:
       if (rank == 0)
         std::cout << "Blocking WAVE level Puts ###" << std::endl;

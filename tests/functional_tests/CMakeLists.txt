@@ -44,15 +44,15 @@ target_include_directories(
 target_sources(
   ${PROJECT_NAME}
   PRIVATE
-    #barrier_all_tester.cpp
+    barrier_all_tester.cpp
     #sync_tester.cpp
     test_driver.cpp
     tester.cpp
     tester_arguments.cpp
     #ping_pong_tester.cpp
     #ping_all_tester.cpp
-    #primitive_tester.cpp
-    #primitive_mr_tester.cpp
+    primitive_tester.cpp
+    primitive_mr_tester.cpp
     default_ctx_primitive_tester.cpp
     #team_ctx_primitive_tester.cpp
     #team_ctx_infra_tester.cpp
