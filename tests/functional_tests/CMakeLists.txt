@@ -46,11 +46,12 @@ target_sources(
   PRIVATE
     barrier_all_tester.cpp
     #sync_tester.cpp
+    sync_all_tester.cpp
     test_driver.cpp
     tester.cpp
     tester_arguments.cpp
-    #ping_pong_tester.cpp
-    #ping_all_tester.cpp
+    ping_pong_tester.cpp
+    ping_all_tester.cpp
     primitive_tester.cpp
     primitive_mr_tester.cpp
     default_ctx_primitive_tester.cpp

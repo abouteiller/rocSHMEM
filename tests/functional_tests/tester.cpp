@@ -40,18 +40,18 @@
 #include "default_ctx_primitive_tester.hpp"
 #include "barrier_all_tester.hpp"
 #include "empty_tester.hpp"
-#if 0
 #include "ping_all_tester.hpp"
 #include "ping_pong_tester.hpp"
-#endif
 #include "primitive_mr_tester.hpp"
 #include "primitive_tester.hpp"
 #if 0
 #include "random_access_tester.hpp"
 #include "shmem_ptr_tester.hpp"
 #include "signaling_operations_tester.hpp"
+#endif
 #include "sync_all_tester.hpp"
 #include "sync_tester.hpp"
+#if 0
 #include "team_alltoall_tester.hpp"
 #include "team_barrier_tester.hpp"
 #include "team_broadcast_tester.hpp"
@@ -340,7 +340,6 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
       testers.push_back(new AMOStandardTester<long>(args));
 //      testers.push_back(new AMOStandardTester<int>(args));
       return testers;
-#if 0
     case PingPongTestType:
       if (rank == 0) std::cout << "PingPong ###" << std::endl;
       testers.push_back(new PingPongTester(args));
@@ -349,7 +348,6 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
       if (rank == 0) std::cout << "PingAll ###" << std::endl;
       testers.push_back(new PingAllTester(args));
       return testers;
-#endif
     case BarrierAllTestType:
       if (rank == 0) std::cout << "Barrier_All ###" << std::endl;
       testers.push_back(new BarrierAllTester(args));
@@ -375,18 +373,20 @@ std::vector<Tester*> Tester::create(TesterArguments args) {
       if (rank == 0) std::cout << "Team WG Barrier Test ###" << std::endl;
       testers.push_back(new TeamBarrierTester(args));
       return testers;
+#endif
     case SyncAllTestType:
       if (rank == 0) std::cout << "SyncAll ###" << std::endl;
-      testers.push_back(new SyncTester(args));
+      testers.push_back(new SyncAllTester(args));
       return testers;
     case WAVESyncAllTestType:
       if (rank == 0) std::cout << "WAVE SyncAll ###" << std::endl;
-      testers.push_back(new SyncTester(args));
+      testers.push_back(new SyncAllTester(args));
       return testers;
     case WGSyncAllTestType:
       if (rank == 0) std::cout << "WG SyncAll ###" << std::endl;
-      testers.push_back(new SyncTester(args));
+      testers.push_back(new SyncAllTester(args));
       return testers;
+#if 0
     case SyncTestType:
       if (rank == 0) std::cout << "Sync ###" << std::endl;
       testers.push_back(new SyncTester(args));
@@ -578,7 +578,6 @@ bool Tester::peLaunchesKernel() {
    * The PE assigned 0 is always active in these tests.
    */
   is_launcher = args.myid == 0;
-#if 0
   /**
    * Some test types are active on both sides.
    */
@@ -595,7 +594,6 @@ bool Tester::peLaunchesKernel() {
                 (_type == RandomAccessTestType) || (_type == PingAllTestType) ||
                 (_type == TeamBarrierTestType) || (_type == TeamWAVEBarrierTestType) ||
                 (_type == TeamWGBarrierTestType);
-#endif
   return is_launcher;
 }
 
