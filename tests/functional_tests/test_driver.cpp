@@ -239,6 +239,8 @@ int main(int argc, char *argv[]) {
    */
   nvshmem_finalize();
 
+  MPI_Finalize();
+
 #ifdef HAVE_PMIX
   if (test_uuid) {
     PMIx_Finalize(NULL, 0);
