@@ -27,7 +27,7 @@
 
 #include <climits>
 #include <cstdint>
-#include <nvshmem.h>
+#include "rocshmem_nvshmem.hpp"
 #include <string>
 #include <iostream>
 
@@ -44,8 +44,8 @@ class TesterArguments {
   TesterArguments(int argc, char *argv[]);
 
   /**
-   * Initialize nvshmem members
-   * Valid after nvshmem_init function called.
+   * Initialize rocshmem members
+   * Valid after rocshmem_init function called.
    */
   void get_arguments();
 
@@ -70,7 +70,7 @@ public:
   unsigned op_type = 0;
   unsigned shmem_context = 8;
   /**
-   * Arguments obtained from nvshmem
+   * Arguments obtained from rocshmem
    */
   int numprocs = INT_MAX;
   int myid = INT_MAX;

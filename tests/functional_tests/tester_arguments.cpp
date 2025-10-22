@@ -26,7 +26,7 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <nvshmem.h>
+#include "rocshmem_nvshmem.hpp"
 
 #include "tester.hpp"
 
@@ -149,8 +149,8 @@ void TesterArguments::show_usage(std::string executable_name) {
 }
 
 void TesterArguments::get_arguments() {
-  numprocs = nvshmem_n_pes();
-  myid = nvshmem_my_pe();
+  numprocs = rocshmem_n_pes();
+  myid = rocshmem_my_pe();
 
   TestType type = (TestType)algorithm;
   if ((type != BarrierAllTestType) && (type != WAVEBarrierAllTestType) &&

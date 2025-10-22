@@ -29,7 +29,7 @@
 
 #include <functional>
 #include <iostream>
-#include <nvshmem.h>
+#include "rocshmem_nvshmem.hpp"
 #include <vector>
 
 #if 0
@@ -655,7 +655,7 @@ void flush_hdp() {
 }
 
 void Tester::barrier() {
-  nvshmem_barrier_all();
+  rocshmem_barrier_all();
   flush_hdp();
 }
 
