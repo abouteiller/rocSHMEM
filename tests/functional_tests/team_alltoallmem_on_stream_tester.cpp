@@ -152,37 +152,19 @@ void TeamAlltoallmemOnStreamTester::launchKernel(dim3 gridSize,
                                                  dim3 blockSize,
                                                  int loop,
                                                  size_t size) {
-  // Execute warmup iterations (skip)
-  for (int i = 0; i < args.skip; i++) {
-    for (int wg_id = 0; wg_id < num_teams; wg_id++) {
-      char *wg_source = source_buf + wg_id * n_pes * size;
-      char *wg_dest = dest_buf + wg_id * n_pes * size;
-      rocshmem_alltoallmem_on_stream(team_world_dup[wg_id], wg_dest,
-                                     wg_source, size, streams[wg_id]);
-    }
-  }
-
-  for (int i = 0; i < num_teams; i++) {
-    CHECK_HIP(hipStreamSynchronize(streams[i]));
-  }
-
-  for (int i = 0; i < loop; i++) {
-    for (int wg_id = 0; wg_id < num_teams; wg_id++) {
-      // Record start event for this work group on first iteration
-      if (i == 0) {
+  for (int wg_id = 0; wg_id < num_teams; wg_id++) {
+    char *wg_source = source_buf + wg_id * n_pes * size;
+    char *wg_dest = dest_buf + wg_id * n_pes * size;
+    for (int i = 0; i < loop + args.skip; i++) {
+      if (i == args.skip) {
+        CHECK_HIP(hipStreamSynchronize(streams[wg_id]));
         CHECK_HIP(hipEventRecord(start_events_timed[wg_id], streams[wg_id]));
       }
-
-      char *wg_source = source_buf + wg_id * n_pes * size;
-      char *wg_dest = dest_buf + wg_id * n_pes * size;
       rocshmem_alltoallmem_on_stream(team_world_dup[wg_id], wg_dest,
                                      wg_source, size, streams[wg_id]);
-
-      // Record stop event for this work group on last iteration
-      if (i == loop - 1) {
-        CHECK_HIP(hipEventRecord(stop_events_timed[wg_id], streams[wg_id]));
-      }
     }
+    CHECK_HIP(hipEventRecord(stop_events_timed[wg_id], streams[wg_id]));
+    CHECK_HIP(hipStreamSynchronize(streams[wg_id]));
   }
 
   num_msgs = (loop + args.skip) * num_teams;
