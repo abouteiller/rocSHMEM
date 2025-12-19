@@ -1046,6 +1046,11 @@ void GDABackend::modify_qps_reset_to_init() {
     } else {
       err = ibv.modify_qp(qps[i], &attr, attr_mask);
     }
+    if (err != 0) {
+      dump_ibv_context(context);
+      dump_ibv_device(device);
+      dump_ibv_port_attr(&portinfo);
+    }
     CHECK_ZERO(err, "modify_qp (INIT)");
   }
 }
@@ -1098,6 +1103,11 @@ void GDABackend::modify_qps_init_to_rtr() {
     } else {
       err = ibv.modify_qp(qps[i], &attr, attr_mask);
     }
+    if (err != 0) {
+      dump_ibv_context(context);
+      dump_ibv_device(device);
+      dump_ibv_port_attr(&portinfo);
+    }
     CHECK_ZERO(err, "modify_qp (RTR)");
   }
 }
@@ -1133,6 +1143,11 @@ void GDABackend::modify_qps_rtr_to_rts() {
       err = bnxt_re_dv.modify_qp(qps[i], &attr, attr_mask, 0, 0);
     } else {
       err = ibv.modify_qp(qps[i], &attr, attr_mask);
+    }
+    if (err != 0) {
+      dump_ibv_context(context);
+      dump_ibv_device(device);
+      dump_ibv_port_attr(&portinfo);
     }
     CHECK_ZERO(err, "modify_qp (RTS)");
   }
@@ -1328,6 +1343,11 @@ void GDABackend::create_qps(int sq_length) {
     attr.recv_cq = cqs[i];
 
     qps[i] = ibv.create_qp_ex(context, &attr);
+    if (nullptr == qps[i]) {
+      dump_ibv_context(context);
+      dump_ibv_device(device);
+      dump_ibv_port_attr(&portinfo);
+    }
     CHECK_NNULL(qps[i], "ibv_create_qp_ex");
   }
 }
@@ -1367,6 +1387,11 @@ void GDABackend::select_gid_index() {
     current_gid = gid_entries[i].gid;
 
     err = ibv.query_gid(context, port, i, &current_gid);
+    if (err != 0) {
+      dump_ibv_context(context);
+      dump_ibv_device(device);
+      dump_ibv_port_attr(&portinfo);
+    }
     CHECK_ZERO(err, "ibv_query_gid");
 
     /* We don't want local GIDs */

@@ -72,7 +72,7 @@ namespace rocshmem {
   if (UNLIKELY(0 != (value))) {                        \
     fprintf(stderr,                                    \
       "Error: %s: %s (%d) at RocSHMEM::%s:%d\n",       \
-      fn_str, strerror(errno), errno,             \
+      fn_str, strerror(errno), errno,                  \
       __FILE__, __LINE__);                             \
     abort();                                           \
   }                                                    \
